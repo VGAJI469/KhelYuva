@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff6b35">
+    <title>KhelYuva Coach Dashboard - AI-Powered Sports Analytics</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            /* Primary Colors - Sharp Black and White */
+            --primary-white: #ffffff;
+            --primary-black: #000000;
+            --primary-gray: #f5f5f5;
+            --secondary-gray: #e0e0e0;
+            --text-gray: #666666;
+            --text-dark: #1a1a1a;
+            
+            /* Subtle Accent Colors */
+            --accent-orange: #ff8c00;
+            --accent-orange-light: #ffb84d;
+            --accent-orange-dark: #cc7000;
+            --accent-green: #00b894;
+            --accent-green-light: #00cec9;
+            --accent-green-dark: #00a085;
+            
+            /* Sharp Design Variables */
+            --border-radius: 0px;
+            --border-radius-sm: 2px;
+            --border-radius-md: 4px;
+            --border-width: 2px;
+            --shadow-sharp: 4px 4px 0px rgba(0, 0, 0, 0.1);
+            --shadow-sharp-lg: 8px 8px 0px rgba(0, 0, 0, 0.15);
+            
+            /* Legacy support */
+            --sport-orange: #ff6b35;
+            --sport-green: #00d4aa;
+            --sport-blue: #0066ff;
+            --sport-red: #ff4757;
+            --sport-yellow: #ffa502;
+            --sport-purple: #8b5cf6;
+            
+            /* Gray Scale */
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .sporty-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sporty-shadow-lg {
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sporty-border {
+            border: 2px solid var(--sport-orange);
+        }
+        
+        .sporty-gradient {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
+            color: var(--primary-white);
+        }
+        
+        .sporty-gradient-alt {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-dark) 100%);
+            color: var(--primary-white);
+        }
+        
+        .sporty-gradient-dark {
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--gray-800) 100%);
+            color: var(--primary-white);
+        }
+        
+        .sporty-card {
+            background: var(--primary-white);
+            border: var(--border-width) solid var(--primary-black);
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sharp);
+        }
+        
+        .sporty-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-sharp-lg);
+        }
+        
+        .sporty-card-dark {
+            background: var(--primary-black);
+            border: var(--border-width) solid var(--primary-white);
+            color: var(--primary-white);
+        }
+        
+        .sporty-card-dark:hover {
+            border-color: var(--accent-green);
+        }
+        
+        .sporty-button {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            border: var(--border-width) solid var(--primary-black);
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: var(--shadow-sharp);
+        }
+        
+        .sporty-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-sharp-lg);
+        }
+        
+        .sporty-button:active {
+            transform: translate(0, 0);
+            box-shadow: var(--shadow-sharp);
+        }
+        
+        .sporty-button.sporty-gradient {
+            background: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+        
+        .sporty-button.sporty-gradient-alt {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        
+        .text-sporty-gradient {
+            color: var(--accent-orange);
+        }
+        
+        .text-sporty-gradient-alt {
+            color: var(--accent-green);
+        }
+        
+        .text-sporty-gradient-dark {
+            color: var(--text-dark);
+        }
+        
+        .section-divider {
+            height: 4px;
+            background: var(--primary-black);
+            border-radius: var(--border-radius);
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        .nav-link { 
+            transition: all 0.2s ease;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .nav-link:hover { 
+            color: var(--accent-orange);
+        }
+        .nav-link.active { 
+            color: var(--accent-orange); 
+            border-bottom: 3px solid var(--accent-orange);
+        }
+        
+        .hero-gradient { 
+            background: var(--primary-black);
+            color: var(--primary-white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        
+        .card-hover { 
+            transition: all 0.2s ease;
+        }
+        .card-hover:hover { 
+            transform: translate(-4px, -4px); 
+            box-shadow: var(--shadow-sharp-lg);
+        }
+        
+        .sporty-input {
+            background: var(--primary-white);
+            border: var(--border-width) solid var(--primary-black);
+            border-radius: var(--border-radius);
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+        }
+        
+        .sporty-input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(255, 140, 0, 0.1);
+        }
+        
+        .sporty-progress {
+            background: var(--secondary-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            height: 8px;
+            border: 1px solid var(--primary-black);
+        }
+        
+        .sporty-progress-fill {
+            background: var(--accent-orange);
+            transition: width 0.3s ease;
+            height: 100%;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .bounce-animation {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .sporty-bg {
+            background: var(--primary-white);
+            color: var(--primary-black);
+        }
+        
+        .sporty-bg-alt {
+            background: var(--primary-gray);
+        }
+        
+        .sporty-bg-dark {
+            background: var(--primary-black);
+            color: var(--primary-white);
+        }
+        
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 107, 53, 0.2);
+        }
+        
+        .auth-form {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            border: 2px solid var(--gray-200);
+        }
+        
+        .auth-form:hover {
+            border-color: var(--accent-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .coach-stats-card {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
+            color: white;
+        }
+        
+        .coach-stats-card-alt {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-dark) 100%);
+            color: white;
+        }
+        
+        .athlete-card {
+            transition: all 0.3s ease;
+        }
+        
+        .athlete-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .performance-chart {
+            height: 200px;
+            background: linear-gradient(45deg, var(--accent-orange) 0%, var(--accent-green) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="sporty-bg min-h-screen" style="background: linear-gradient(135deg, var(--primary-white) 0%, var(--primary-gray) 100%);">
+    <!-- Navigation -->
+    <nav class="sporty-card fixed w-full top-4 left-4 right-4 z-50 sporty-shadow-lg" style="margin: 0 16px;">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <img src="logo.png" alt="KhelYuva Logo" class="h-12 w-auto">
+                        </div>
+                        <div class="flex-shrink-0">
+                            <h1 class="text-4xl font-black text-sporty-gradient">KhelYuva Coach</h1>
+                            <p class="text-sm font-mono text-gray-600 tracking-widest">COACH DASHBOARD</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#" class="nav-link text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider" data-page="dashboard">Dashboard</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider" data-page="athletes">My Athletes</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider" data-page="analytics">Analytics</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider" data-page="training">Training Plans</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider" data-page="reports">Reports</a>
+                        <button id="logout-btn" class="text-gray-700 hover:text-orange-500 px-4 py-3 text-sm font-bold uppercase tracking-wider">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-orange-500 focus:outline-none focus:text-orange-500 transition-colors">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden sporty-card mt-4 sporty-shadow">
+            <div class="px-6 pt-6 pb-8 space-y-3">
+                <a href="#" class="nav-link block px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link block px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider" data-page="athletes">My Athletes</a>
+                <a href="#" class="nav-link block px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider" data-page="analytics">Analytics</a>
+                <a href="#" class="nav-link block px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider" data-page="training">Training Plans</a>
+                <a href="#" class="nav-link block px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider" data-page="reports">Reports</a>
+                <button id="logout-btn-mobile" class="block w-full text-left px-4 py-3 text-base font-bold text-gray-700 hover:text-orange-500 uppercase tracking-wider">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Coach Dashboard Page -->
+    <div id="dashboard" class="page active">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Welcome Section -->
+                <div class="mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Coach Dashboard</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl">Welcome back! Monitor your athletes' progress and optimize their training.</p>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                    <div class="coach-stats-card sporty-card p-8 sporty-shadow">
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-3xl mr-4"></i>
+                            <div>
+                                <div class="text-4xl font-black mb-2">24</div>
+                                <div class="text-lg font-semibold uppercase tracking-wider">Total Athletes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="coach-stats-card-alt sporty-card p-8 sporty-shadow">
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line text-3xl mr-4"></i>
+                            <div>
+                                <div class="text-4xl font-black mb-2">89%</div>
+                                <div class="text-lg font-semibold uppercase tracking-wider">Avg Performance</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="coach-stats-card sporty-card p-8 sporty-shadow">
+                        <div class="flex items-center">
+                            <i class="fas fa-trophy text-3xl mr-4"></i>
+                            <div>
+                                <div class="text-4xl font-black mb-2">156</div>
+                                <div class="text-lg font-semibold uppercase tracking-wider">Sessions This Week</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="coach-stats-card-alt sporty-card p-8 sporty-shadow">
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-3xl mr-4"></i>
+                            <div>
+                                <div class="text-4xl font-black mb-2">12</div>
+                                <div class="text-lg font-semibold uppercase tracking-wider">Top Performers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="sporty-card sporty-shadow-lg p-8 mb-12">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Quick Actions</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <button class="sporty-button sporty-gradient p-6 text-center hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-user-plus text-3xl mb-4"></i>
+                            <div class="font-bold text-lg">Add Athlete</div>
+                        </button>
+                        <button class="sporty-button sporty-gradient-alt p-6 text-center hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-clipboard-list text-3xl mb-4"></i>
+                            <div class="font-bold text-lg">Create Plan</div>
+                        </button>
+                        <button class="sporty-button sporty-gradient p-6 text-center hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-chart-bar text-3xl mb-4"></i>
+                            <div class="font-bold text-lg">View Reports</div>
+                        </button>
+                        <button class="sporty-button sporty-gradient-alt p-6 text-center hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-video text-3xl mb-4"></i>
+                            <div class="font-bold text-lg">Live Session</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Top Performers -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+                    <!-- Recent Activity -->
+                    <div class="sporty-card sporty-shadow p-8">
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-6">Recent Activity</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                                <div class="w-12 h-12 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-running text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sporty-gradient-dark">Arjun Sharma completed Push-ups session</div>
+                                    <div class="text-gray-600 text-sm">Score: 92/100 • 2 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                                <div class="w-12 h-12 sporty-gradient-alt rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-swimmer text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sporty-gradient-dark">Priya Singh achieved new personal best</div>
+                                    <div class="text-gray-600 text-sm">Swimming • 4 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                                <div class="w-12 h-12 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-futbol text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sporty-gradient-dark">Rahul Kumar finished Football assessment</div>
+                                    <div class="text-gray-600 text-sm">Score: 88/100 • 6 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performers -->
+                    <div class="sporty-card sporty-shadow p-8">
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-6">Top Performers This Week</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 sporty-gradient rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold">1</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-sporty-gradient-dark">Ananya Gupta</div>
+                                        <div class="text-gray-600 text-sm">Gymnastics</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-sporty-gradient">98</div>
+                                    <div class="text-sm text-gray-600">Score</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 sporty-gradient-alt rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold">2</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-sporty-gradient-dark">Priya Singh</div>
+                                        <div class="text-gray-600 text-sm">Athletics</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-sporty-gradient-alt">96</div>
+                                    <div class="text-sm text-gray-600">Score</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 sporty-gradient rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold">3</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-sporty-gradient-dark">Sneha Mehta</div>
+                                        <div class="text-gray-600 text-sm">Swimming</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-sporty-gradient">94</div>
+                                    <div class="text-sm text-gray-600">Score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Charts -->
+                <div class="sporty-card sporty-shadow-lg p-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Team Performance Overview</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-sporty-gradient-dark mb-4">Weekly Progress</h3>
+                            <div class="performance-chart">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line text-4xl mb-2"></i>
+                                    <div>Performance Chart</div>
+                                    <div class="text-sm opacity-80">Interactive visualization coming soon</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-sporty-gradient-dark mb-4">Sport Distribution</h3>
+                            <div class="performance-chart">
+                                <div class="text-center">
+                                    <i class="fas fa-pie-chart text-4xl mb-2"></i>
+                                    <div>Sport Analytics</div>
+                                    <div class="text-sm opacity-80">Data visualization coming soon</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Athletes Page -->
+    <div id="athletes" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">My Athletes</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Manage and monitor your athletes' progress and performance</p>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="sporty-card sporty-shadow-lg p-8 mb-12">
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <input type="text" placeholder="Search athletes..." class="sporty-input flex-1 px-6 py-4 text-lg">
+                        <select class="sporty-input px-4 py-4">
+                            <option>All Sports</option>
+                            <option>Basketball</option>
+                            <option>Athletics</option>
+                            <option>Football</option>
+                            <option>Swimming</option>
+                            <option>Gymnastics</option>
+                        </select>
+                        <select class="sporty-input px-4 py-4">
+                            <option>All Levels</option>
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                            <option>Professional</option>
+                        </select>
+                        <button class="sporty-button sporty-gradient px-8 py-4 font-bold uppercase tracking-wider">
+                            <i class="fas fa-search mr-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Athletes Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Athlete Card 1 -->
+                    <div class="athlete-card sporty-card p-6 sporty-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">AS</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Arjun Sharma</h3>
+                                <p class="text-gray-600">Basketball • Delhi</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-gray-600">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">85</div>
+                                <div class="text-sm text-gray-600">Avg Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">24</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>+12% this month</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-eye mr-2"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Athlete Card 2 -->
+                    <div class="athlete-card sporty-card p-6 sporty-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient-alt rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">PS</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Priya Singh</h3>
+                                <p class="text-gray-600">Athletics • Mumbai</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-gray-600">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">92</div>
+                                <div class="text-sm text-gray-600">Avg Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">18</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>+8% this month</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-eye mr-2"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Athlete Card 3 -->
+                    <div class="athlete-card sporty-card p-6 sporty-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">RK</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Rahul Kumar</h3>
+                                <p class="text-gray-600">Football • Bangalore</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-gray-600">Inactive</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">78</div>
+                                <div class="text-sm text-gray-600">Avg Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">31</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>+5% this month</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-eye mr-2"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add more athlete cards as needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Page -->
+    <div id="analytics" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Analytics</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Deep insights into your athletes' performance and training data</p>
+                </div>
+
+                <!-- Analytics Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <div class="sporty-card sporty-shadow-lg p-8">
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-6">Performance Trends</h3>
+                        <div class="performance-chart">
+                            <div class="text-center">
+                                <i class="fas fa-chart-line text-4xl mb-2"></i>
+                                <div>Performance Analytics</div>
+                                <div class="text-sm opacity-80">Advanced charts coming soon</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sporty-card sporty-shadow-lg p-8">
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-6">Training Load</h3>
+                        <div class="performance-chart">
+                            <div class="text-center">
+                                <i class="fas fa-dumbbell text-4xl mb-2"></i>
+                                <div>Workload Analysis</div>
+                                <div class="text-sm opacity-80">Training metrics coming soon</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics -->
+                <div class="sporty-card sporty-shadow-lg p-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Detailed Analytics</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="w-20 h-20 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-trophy text-3xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Achievement Rate</h3>
+                            <p class="text-gray-600">Track how often athletes meet their goals</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-20 h-20 sporty-gradient-alt rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-heartbeat text-3xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Recovery Analysis</h3>
+                            <p class="text-gray-600">Monitor athlete recovery and readiness</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-20 h-20 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-target text-3xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Goal Tracking</h3>
+                            <p class="text-gray-600">Monitor progress towards set objectives</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Plans Page -->
+    <div id="training" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Training Plans</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Create and manage personalized training programs for your athletes</p>
+                </div>
+
+                <!-- Training Plans Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="sporty-card sporty-shadow-lg p-8 hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-basketball-ball text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-4">Basketball Training</h3>
+                        <p class="text-gray-600 mb-6">Comprehensive basketball training program focusing on shooting, dribbling, and team coordination.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <button class="sporty-button sporty-gradient w-full py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-play mr-2"></i>View Plan
+                        </button>
+                    </div>
+
+                    <div class="sporty-card sporty-shadow-lg p-8 hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient-alt rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-running text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-4">Athletics Program</h3>
+                        <p class="text-gray-600 mb-6">Track and field training focusing on speed, endurance, and technique improvement.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>60%</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <button class="sporty-button sporty-gradient w-full py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-play mr-2"></i>View Plan
+                        </button>
+                    </div>
+
+                    <div class="sporty-card sporty-shadow-lg p-8 hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-futbol text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-sporty-gradient-dark mb-4">Football Training</h3>
+                        <p class="text-gray-600 mb-6">Soccer training program emphasizing ball control, passing, and tactical awareness.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <button class="sporty-button sporty-gradient w-full py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-play mr-2"></i>View Plan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Create New Plan -->
+                <div class="mt-12 text-center">
+                    <button class="sporty-button sporty-gradient-alt px-12 py-5 text-lg font-bold uppercase tracking-wider">
+                        <i class="fas fa-plus mr-3"></i>Create New Training Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Athletes Management Page -->
+    <div id="athletes" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Athletes Management</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Manage your team of athletes and track their individual progress</p>
+                </div>
+
+                <!-- Athletes Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Sample Athlete 1 -->
+                    <div class="sporty-card sporty-shadow-lg p-6 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">AS</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Arjun Sharma</h3>
+                                <p class="text-gray-600">Basketball • Age 18</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">85</div>
+                                <div class="text-sm text-gray-600">Overall Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">24</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Last Performance</span>
+                                <span>92/100</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sample Athlete 2 -->
+                    <div class="sporty-card sporty-shadow-lg p-6 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient-alt rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">PS</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Priya Singh</h3>
+                                <p class="text-gray-600">Athletics • Age 17</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">92</div>
+                                <div class="text-sm text-gray-600">Overall Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">18</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Last Performance</span>
+                                <span>96/100</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 96%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sample Athlete 3 -->
+                    <div class="sporty-card sporty-shadow-lg p-6 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mr-4">
+                                <span class="text-white font-bold text-xl">RK</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-sporty-gradient-dark">Rahul Kumar</h3>
+                                <p class="text-gray-600">Football • Age 19</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient">78</div>
+                                <div class="text-sm text-gray-600">Overall Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-sporty-gradient-alt">31</div>
+                                <div class="text-sm text-gray-600">Sessions</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Last Performance</span>
+                                <span>88/100</span>
+                            </div>
+                            <div class="sporty-progress">
+                                <div class="sporty-progress-fill" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="sporty-button sporty-gradient flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </button>
+                            <button class="sporty-button sporty-gradient-alt flex-1 py-2 font-bold uppercase tracking-wider text-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add New Athlete -->
+                <div class="mt-12 text-center">
+                    <button class="sporty-button sporty-gradient-alt px-12 py-5 text-lg font-bold uppercase tracking-wider">
+                        <i class="fas fa-user-plus mr-3"></i>Add New Athlete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Page -->
+    <div id="reports" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Reports & Analytics</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Generate comprehensive reports and insights for your team</p>
+                </div>
+
+                <!-- Report Types -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                    <div class="sporty-card sporty-shadow-lg p-6 text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Performance Report</h3>
+                        <p class="text-gray-600 text-sm mb-4">Track individual and team performance metrics</p>
+                        <button class="sporty-button sporty-gradient w-full py-2 font-bold uppercase tracking-wider text-sm">
+                            Generate
+                        </button>
+                    </div>
+
+                    <div class="sporty-card sporty-shadow-lg p-6 text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient-alt rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calendar-alt text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Training Report</h3>
+                        <p class="text-gray-600 text-sm mb-4">Analyze training sessions and progress</p>
+                        <button class="sporty-button sporty-gradient w-full py-2 font-bold uppercase tracking-wider text-sm">
+                            Generate
+                        </button>
+                    </div>
+
+                    <div class="sporty-card sporty-shadow-lg p-6 text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Team Report</h3>
+                        <p class="text-gray-600 text-sm mb-4">Comprehensive team analysis and insights</p>
+                        <button class="sporty-button sporty-gradient w-full py-2 font-bold uppercase tracking-wider text-sm">
+                            Generate
+                        </button>
+                    </div>
+
+                    <div class="sporty-card sporty-shadow-lg p-6 text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-16 h-16 sporty-gradient-alt rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-trophy text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-sporty-gradient-dark mb-2">Achievement Report</h3>
+                        <p class="text-gray-600 text-sm mb-4">Track goals and achievements</p>
+                        <button class="sporty-button sporty-gradient w-full py-2 font-bold uppercase tracking-wider text-sm">
+                            Generate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Reports -->
+                <div class="sporty-card sporty-shadow-lg p-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Recent Reports</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 sporty-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf text-2xl text-sporty-gradient mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-sporty-gradient-dark">Monthly Performance Report</h4>
+                                    <p class="text-gray-600 text-sm">Generated on Dec 15, 2024</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="sporty-button sporty-gradient px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                                <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 sporty-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf text-2xl text-sporty-gradient-alt mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-sporty-gradient-dark">Training Progress Report</h4>
+                                    <p class="text-gray-600 text-sm">Generated on Dec 10, 2024</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="sporty-button sporty-gradient px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                                <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 sporty-card">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf text-2xl text-sporty-gradient mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-sporty-gradient-dark">Team Analytics Report</h4>
+                                    <p class="text-gray-600 text-sm">Generated on Dec 5, 2024</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="sporty-button sporty-gradient px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                                <button class="sporty-button sporty-gradient-alt px-4 py-2 font-bold uppercase tracking-wider text-sm">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings" class="page">
+        <div class="pt-24 pb-16 sporty-bg min-h-screen">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black text-sporty-gradient mb-4">Settings</h1>
+                    <p class="text-xl text-sporty-gradient-dark max-w-2xl mx-auto">Manage your coach profile and preferences</p>
+                </div>
+
+                <!-- Profile Settings -->
+                <div class="sporty-card sporty-shadow-lg p-8 mb-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Profile Settings</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-sporty-gradient-dark mb-2">Full Name</label>
+                            <input type="text" value="Coach Rajesh Kumar" class="sporty-input w-full px-4 py-3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-sporty-gradient-dark mb-2">Email</label>
+                            <input type="email" value="coach.rajesh@khelyuva.com" class="sporty-input w-full px-4 py-3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-sporty-gradient-dark mb-2">Specialization</label>
+                            <select class="sporty-input w-full px-4 py-3">
+                                <option>Basketball</option>
+                                <option>Athletics</option>
+                                <option>Football</option>
+                                <option>Swimming</option>
+                                <option>Gymnastics</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-sporty-gradient-dark mb-2">Experience (Years)</label>
+                            <input type="number" value="8" class="sporty-input w-full px-4 py-3">
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button class="sporty-button sporty-gradient px-8 py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="sporty-card sporty-shadow-lg p-8 mb-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Notification Settings</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sporty-gradient-dark">Email Notifications</h4>
+                                <p class="text-gray-600 text-sm">Receive updates via email</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sporty-gradient-dark">Performance Alerts</h4>
+                                <p class="text-gray-600 text-sm">Get notified about athlete performance changes</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sporty-gradient-dark">Training Reminders</h4>
+                                <p class="text-gray-600 text-sm">Reminders for scheduled training sessions</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="sporty-card sporty-shadow-lg p-8">
+                    <h2 class="text-3xl font-black text-sporty-gradient mb-6">Account Actions</h2>
+                    <div class="space-y-4">
+                        <button class="sporty-button sporty-gradient-alt w-full py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-download mr-2"></i>Export Data
+                        </button>
+                        <button class="sporty-button sporty-gradient w-full py-3 font-bold uppercase tracking-wider">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Coach Dashboard JavaScript
+        class CoachDashboard {
+            constructor() {
+                this.currentPage = 'dashboard';
+                this.init();
+            }
+
+            init() {
+                this.setupNavigation();
+                this.setupMobileMenu();
+                this.loadDashboardData();
+            }
+
+            setupNavigation() {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = link.getAttribute('data-page');
+                        this.showPage(page);
+                    });
+                });
+            }
+
+            showPage(pageName) {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show selected page
+                const targetPage = document.getElementById(pageName);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    this.currentPage = pageName;
+                }
+
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                const activeLink = document.querySelector(`[data-page="${pageName}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+
+                // Close mobile menu if open
+                this.closeMobileMenu();
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+
+            setupMobileMenu() {
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                if (mobileMenuBtn && mobileMenu) {
+                    mobileMenuBtn.addEventListener('click', () => {
+                        mobileMenu.classList.toggle('hidden');
+                    });
+
+                    // Close mobile menu when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                            this.closeMobileMenu();
+                        }
+                    });
+                }
+            }
+
+            closeMobileMenu() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+
+            loadDashboardData() {
+                // Simulate loading dashboard data
+                console.log('Loading coach dashboard data...');
+                
+                // Update stats with sample data
+                this.updateStats({
+                    totalAthletes: 12,
+                    activeTrainingPlans: 5,
+                    averagePerformance: 87,
+                    upcomingSessions: 8
+                });
+            }
+
+            updateStats(stats) {
+                // Update dashboard statistics
+                const elements = {
+                    totalAthletes: document.getElementById('total-athletes'),
+                    activeTrainingPlans: document.getElementById('active-training-plans'),
+                    averagePerformance: document.getElementById('average-performance'),
+                    upcomingSessions: document.getElementById('upcoming-sessions')
+                };
+
+                Object.keys(stats).forEach(key => {
+                    if (elements[key]) {
+                        elements[key].textContent = stats[key];
+                    }
+                });
+            }
+        }
+
+        // Initialize coach dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.coachDashboard = new CoachDashboard();
+        });
+
+        // Global function for page navigation
+        function showPage(pageName) {
+            if (window.coachDashboard) {
+                window.coachDashboard.showPage(pageName);
+            }
+        }
+
+        // Sample functions for demo purposes
+        function viewPlayerProfile(playerId) {
+            alert(`Viewing profile for ${playerId} - This would open a detailed player profile page`);
+        }
+
+        function generateReport(reportType) {
+            alert(`Generating ${reportType} report - This would create and download the report`);
+        }
+    </script>
+</body>
+</html>
+        
