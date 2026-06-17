@@ -319,6 +319,12 @@
             font-weight: bold;
         }
     </style>
+    
+    <!-- Vercel Speed Insights -->
+    <script type="module">
+        import { injectSpeedInsights } from './node_modules/@vercel/speed-insights/dist/index.mjs';
+        injectSpeedInsights();
+    </script>
 </head>
 <body class="sporty-bg min-h-screen" style="background: linear-gradient(135deg, var(--primary-white) 0%, var(--primary-gray) 100%);">
     <!-- Navigation -->

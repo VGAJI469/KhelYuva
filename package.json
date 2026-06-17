@@ -1,0 +1,24 @@
+{
+  "name": "khelyuva",
+  "version": "1.0.0",
+  "description": "AI-Powered Sports Talent Discovery Platform",
+  "main": "khelyuva-dashboard.js",
+  "scripts": {
+    "dev": "npx http-server -p 8000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VGAJI469/KhelYuva.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VGAJI469/KhelYuva/issues"
+  },
+  "homepage": "https://github.com/VGAJI469/KhelYuva#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
