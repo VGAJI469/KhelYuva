@@ -1,0 +1,28 @@
+{
+  "name": "khelyuva",
+  "version": "1.0.0",
+  "description": "KhelYuva - AI-Powered Sports Talent Discovery Platform with MediaPipe pose detection",
+  "private": true,
+  "scripts": {
+    "start": "npx serve . -p 3000 --cors",
+    "dev": "npx serve . -p 3000 --cors",
+    "serve": "npx serve . --cors"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "sports",
+    "ai",
+    "mediapipe",
+    "pose-detection",
+    "fitness"
+  ],
+  "author": "KhelYuva Team",
+  "license": "MIT",
+  "homepage": "https://khelyuva.vercel.app"
+}

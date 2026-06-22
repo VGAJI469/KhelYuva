@@ -76,7 +76,7 @@ class KhelYuvaPoseDetection {
         
         // Exercise selection
         document.querySelectorAll('.exercise-option').forEach(btn => {
-            btn.addEventListener('click', () => this.selectExercise(btn.dataset.exercise));
+            btn.addEventListener('click', (e) => this.selectExercise(btn.dataset.exercise, e));
         });
         
         // Save workout
@@ -90,12 +90,16 @@ class KhelYuvaPoseDetection {
         }
     }
     
-    selectExercise(exercise) {
+    selectExercise(exercise, e) {
         // Update active exercise button
         document.querySelectorAll('.exercise-option').forEach(btn => {
             btn.classList.remove('ring-2', 'ring-blue-500');
         });
-        event.target.closest('.exercise-option').classList.add('ring-2', 'ring-blue-500');
+        // Use passed event or fall back to currentTarget on the element
+        const clickedBtn = (e && e.currentTarget) ?
+            e.currentTarget :
+            document.querySelector(`[data-exercise="${exercise}"]`);
+        if (clickedBtn) clickedBtn.classList.add('ring-2', 'ring-blue-500');
         
         this.currentExercise = exercise;
         this.resetCounters();
@@ -227,14 +231,15 @@ class KhelYuvaPoseDetection {
         this.ctx.drawImage(results.image, 0, 0, this.canvas.width, this.canvas.height);
         
         if (results.poseLandmarks) {
-            this.drawConnectors(this.ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-            this.drawLandmarks(this.ctx, results.poseLandmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
+            // Use internal helpers (avoid collision with MediaPipe global functions)
+            this._drawConnectors(this.ctx, results.poseLandmarks, KHELYUVA_POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+            this._drawLandmarks(this.ctx, results.poseLandmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
         }
         
         this.ctx.restore();
     }
     
-    drawConnectors(ctx, landmarks, connections, style) {
+    _drawConnectors(ctx, landmarks, connections, style) {
         const { color, lineWidth } = style;
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
@@ -252,7 +257,7 @@ class KhelYuvaPoseDetection {
         });
     }
     
-    drawLandmarks(ctx, landmarks, style) {
+    _drawLandmarks(ctx, landmarks, style) {
         const { color, lineWidth, radius } = style;
         ctx.fillStyle = color;
         ctx.lineWidth = lineWidth;
@@ -574,13 +579,16 @@ class KhelYuvaPoseDetection {
     }
 }
 
-// POSE_CONNECTIONS constant for drawing pose
-const POSE_CONNECTIONS = [
-    [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19], [12, 14],
-    [14, 16], [16, 18], [16, 20], [16, 22], [18, 20], [11, 23], [12, 24], [23, 24],
-    [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
-    [27, 31], [28, 32]
-];
+// POSE_CONNECTIONS — use a unique name to avoid re-declaration conflicts
+// with script.js which also defines POSE_CONNECTIONS
+const KHELYUVA_POSE_CONNECTIONS = (typeof POSE_CONNECTIONS !== 'undefined')
+    ? POSE_CONNECTIONS
+    : [
+        [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19], [12, 14],
+        [14, 16], [16, 18], [16, 20], [16, 22], [18, 20], [11, 23], [12, 24], [23, 24],
+        [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
+        [27, 31], [28, 32]
+      ];
 
 // Initialize pose detection when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

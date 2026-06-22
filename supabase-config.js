@@ -1,10 +1,19 @@
 // Supabase configuration
-const SUPABASE_URL = 'https://qoxghmulgcwatgojxjue.supabase.co'; // Replace with your Supabase project URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGdobXVsZ2N3YXRnb2p4anVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Njc4NDQsImV4cCI6MjA3MzU0Mzg0NH0.LZGArp0vazN4PY3WSEHWCwgkbrbYxpFcOsf1_Pkm2Fo'; // Replace with your Supabase anon key
+const SUPABASE_URL = 'https://qoxghmulgcwatgojxjue.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGdobXVsZ2N3YXRnb2p4anVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Njc4NDQsImV4cCI6MjA3MzU0Mzg0NH0.LZGArp0vazN4PY3WSEHWCwgkbrbYxpFcOsf1_Pkm2Fo';
 
-// Initialize Supabase client
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client safely (CDN may not load in certain network environments)
+let supabaseClient = null;
+try {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+        const { createClient } = supabase;
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.warn('Supabase CDN not loaded. Running in demo/offline mode.');
+    }
+} catch (err) {
+    console.error('Supabase initialization failed:', err);
+}
 
 // Authentication helper functions
 class AuthManager {
@@ -15,6 +24,12 @@ class AuthManager {
     }
 
     async init() {
+        // If Supabase didn't load, fall back to demo mode
+        if (!supabaseClient) {
+            console.warn('AuthManager: Supabase unavailable, operating in demo mode.');
+            this.showAuthPage();
+            return;
+        }
         try {
             // Check for existing session
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -60,6 +75,7 @@ class AuthManager {
     }
 
     async signUp(email, password, userData = {}) {
+        if (!supabaseClient) return { data: null, error: new Error('Supabase not available') };
         try {
             const { data, error } = await supabaseClient.auth.signUp({
                 email,
@@ -78,6 +94,7 @@ class AuthManager {
     }
 
     async signIn(email, password) {
+        if (!supabaseClient) return { data: null, error: new Error('Supabase not available') };
         try {
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
@@ -93,6 +110,7 @@ class AuthManager {
     }
 
     async signOut() {
+        if (!supabaseClient) { this.showAuthPage(); return; }
         try {
             const { error } = await supabaseClient.auth.signOut();
             if (error) throw error;
@@ -102,6 +120,7 @@ class AuthManager {
     }
 
     async saveWorkoutData(exercise, reps, sets, date = new Date(), scores = null) {
+        if (!supabaseClient) return { error: 'Supabase not available' };
         if (!this.user) return { error: 'User not authenticated' };
 
         try {
@@ -127,6 +146,7 @@ class AuthManager {
     }
 
     async saveAssessmentData(sport, assessmentData, finalScores, date = new Date()) {
+        if (!supabaseClient) return { error: 'Supabase not available' };
         if (!this.user) return { error: 'User not authenticated' };
 
         try {
@@ -151,6 +171,7 @@ class AuthManager {
     }
 
     async getWorkoutHistory() {
+        if (!supabaseClient) return { data: [], error: 'Supabase not available' };
         if (!this.user) return { data: [], error: 'User not authenticated' };
 
         try {
@@ -168,14 +189,28 @@ class AuthManager {
         }
     }
 
+    // showAuthPage / showMainApp use the real page system from khelyuva.html
+    // khelyuva.html uses .page / .page.active CSS pattern with showPage() function
     showAuthPage() {
-        document.getElementById('auth-container').style.display = 'block';
-        document.getElementById('main-app').style.display = 'none';
+        // Try the SPA page system first
+        if (typeof showPage === 'function') {
+            showPage('auth');
+        } else {
+            // Fallback: directly manipulate page divs
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const authPage = document.getElementById('auth');
+            if (authPage) authPage.classList.add('active');
+        }
     }
 
     showMainApp() {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
+        if (typeof showPage === 'function') {
+            showPage('landing');
+        } else {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const landingPage = document.getElementById('landing');
+            if (landingPage) landingPage.classList.add('active');
+        }
     }
 
     isAuthenticated() {

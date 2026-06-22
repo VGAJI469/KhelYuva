@@ -44,9 +44,9 @@ class ExerciseCounter {
     }
     
     setupEventListeners() {
-        this.startBtn.addEventListener('click', () => this.startCamera());
-        this.stopBtn.addEventListener('click', () => this.stopCamera());
-        this.resetBtn.addEventListener('click', () => this.resetCounters());
+        if (this.startBtn) this.startBtn.addEventListener('click', () => this.startCamera());
+        if (this.stopBtn)  this.stopBtn.addEventListener('click', () => this.stopCamera());
+        if (this.resetBtn) this.resetBtn.addEventListener('click', () => this.resetCounters());
         
         this.exerciseBtns.forEach(btn => {
             btn.addEventListener('click', () => this.selectExercise(btn.dataset.exercise));
@@ -222,8 +222,8 @@ class ExerciseCounter {
             
             await this.camera.start();
             
-            this.startBtn.disabled = true;
-            this.stopBtn.disabled = false;
+        this.startBtn.disabled = true;
+            if (this.stopBtn) this.stopBtn.disabled = false;
             this.updateStatus('Camera started - Select an exercise to begin');
             
         } catch (error) {
@@ -238,8 +238,8 @@ class ExerciseCounter {
             this.camera = null;
         }
         
-        this.startBtn.disabled = false;
-        this.stopBtn.disabled = true;
+        if (this.startBtn) this.startBtn.disabled = false;
+        if (this.stopBtn) this.stopBtn.disabled = true;
         this.updateStatus('Camera stopped');
         
         // Clear canvas
@@ -266,14 +266,15 @@ class ExerciseCounter {
         this.ctx.drawImage(results.image, 0, 0, this.canvas.width, this.canvas.height);
         
         if (results.poseLandmarks) {
-            this.drawConnectors(this.ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-            this.drawLandmarks(this.ctx, results.poseLandmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
+            // Use internal helpers to avoid collision with any MediaPipe globals
+            this._drawConnectors(this.ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+            this._drawLandmarks(this.ctx, results.poseLandmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
         }
         
         this.ctx.restore();
     }
     
-    drawConnectors(ctx, landmarks, connections, style) {
+    _drawConnectors(ctx, landmarks, connections, style) {
         const { color, lineWidth } = style;
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
@@ -291,7 +292,7 @@ class ExerciseCounter {
         });
     }
     
-    drawLandmarks(ctx, landmarks, style) {
+    _drawLandmarks(ctx, landmarks, style) {
         const { color, lineWidth, radius } = style;
         ctx.fillStyle = color;
         ctx.lineWidth = lineWidth;
@@ -486,13 +487,15 @@ class ExerciseCounter {
     }
 }
 
-// POSE_CONNECTIONS constant for drawing pose
-const POSE_CONNECTIONS = [
-    [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19], [12, 14],
-    [14, 16], [16, 18], [16, 20], [16, 22], [18, 20], [11, 23], [12, 24], [23, 24],
-    [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
-    [27, 31], [28, 32]
-];
+// POSE_CONNECTIONS — guard against re-declaration from khelyuva-pose-detection.js
+if (typeof POSE_CONNECTIONS === 'undefined') {
+    var POSE_CONNECTIONS = [
+        [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19], [12, 14],
+        [14, 16], [16, 18], [16, 20], [16, 22], [18, 20], [11, 23], [12, 24], [23, 24],
+        [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
+        [27, 31], [28, 32]
+    ];
+}
 
 // Initialize the exercise counter when the page loads
 document.addEventListener('DOMContentLoaded', () => {
